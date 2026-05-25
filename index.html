@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GazaPress – Truth From The Ground</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#c0392b;--darkred:#8b0000;--navy:#1a1a2e;--navy2:#16213e;
+  --accent:#e74c3c;--gold:#f39c12;--bg:#f2f0eb;--white:#fff;
+  --border:#e0ddd5;--text:#1c1c1c;--muted:#6b6b6b;--light:#fafaf7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);font-size:15px;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'Barlow',sans-serif;cursor:pointer;}
+input,textarea,select{font-family:'Barlow',sans-serif;}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* ── TOP BAR ── */
+#topbar{background:var(--navy);color:#9aa;font-size:11.5px;padding:5px 20px;display:flex;justify-content:space-between;align-items:center;letter-spacing:.3px;}
+#topbar .left{display:flex;align-items:center;gap:10px;}
+#topbar .right{display:flex;align-items:center;gap:12px;}
+#topbar .sep{color:#333;}
+#btn-admin{background:var(--red);color:#fff;border:none;border-radius:3px;padding:3px 11px;font-size:10.5px;font-weight:700;letter-spacing:.8px;cursor:pointer;text-transform:uppercase;}
+#btn-admin:hover{background:var(--accent);}
+
+/* ── FLASH TICKER ── */
+#flash-bar{background:var(--red);color:#fff;height:34px;display:flex;align-items:center;overflow:hidden;}
+#flash-label{background:var(--darkred);padding:0 16px;height:100%;display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;white-space:nowrap;flex-shrink:0;}
+#flash-track{flex:1;overflow:hidden;padding:0 12px;font-size:13px;font-weight:500;}
+#flash-text{transition:opacity .4s,transform .4s;}
+
+/* ── HEADER ── */
+#site-header{background:var(--white);border-bottom:3px solid var(--red);padding:14px 20px;}
+#header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+#logo-wrap{display:flex;align-items:center;gap:12px;}
+#logo-box{width:170px;height:52px;background:var(--navy);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+#logo-box img{width:100%;height:100%;object-fit:contain;}
+#logo-text-fallback{display:none;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:1px;}
+#logo-text-fallback span{color:var(--accent);}
+#logo-tagline{border-left:2px solid var(--border);padding-left:10px;}
+#logo-tagline p{font-size:11px;color:var(--muted);line-height:1.5;}
+#logo-tagline p:first-child{color:var(--red);font-weight:700;font-size:11px;}
+#search-wrap{flex:1;max-width:340px;}
+#search-input{width:100%;padding:9px 16px;border:2px solid var(--border);border-radius:24px;font-size:13.5px;outline:none;background:var(--light);transition:border .2s;}
+#search-input:focus{border-color:var(--red);}
+#header-extras{font-size:12px;color:var(--muted);display:flex;gap:12px;}
+
+/* ── NAV ── */
+#main-nav{background:var(--navy);border-bottom:2px solid var(--red);}
+#nav-inner{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;scrollbar-width:none;}
+#nav-inner::-webkit-scrollbar{display:none;}
+.nav-btn{padding:12px 16px;border:none;background:transparent;color:#bbc;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13.5px;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap;transition:all .2s;border-bottom:2px solid transparent;}
+.nav-btn:hover{color:#fff;}
+.nav-btn.active{background:var(--red);color:#fff;}
+
+/* ── BREAKING BANNER ── */
+#breaking-bar{background:var(--red);color:#fff;height:38px;display:flex;align-items:center;overflow:hidden;}
+#breaking-label{background:var(--darkred);padding:0 16px;height:100%;display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;white-space:nowrap;flex-shrink:0;gap:6px;}
+.breaking-track{flex:1;overflow:hidden;}
+.breaking-inner{display:inline-flex;gap:60px;animation:ticker 25s linear infinite;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.3px;}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── MAIN LAYOUT ── */
+#main{max-width:1200px;margin:0 auto;padding:24px 18px;display:grid;grid-template-columns:1fr 296px;gap:24px;}
+@media(max-width:820px){#main{grid-template-columns:1fr;}#sidebar{display:none;}}
+
+/* ── SECTION HEADINGS ── */
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.sec-bar{width:4px;height:22px;border-radius:2px;}
+.sec-bar.red{background:var(--red);}
+.sec-bar.navy{background:var(--navy);}
+.sec-bar.gold{background:var(--gold);}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);}
+
+/* ── ARTICLE CARDS ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .15s;}
+.card:hover{box-shadow:0 6px 24px rgba(0,0,0,.12);transform:translateY(-2px);}
+.card-img-wrap{position:relative;padding-top:56%;background:#ddd;overflow:hidden;}
+.card-img-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.card:hover .card-img-wrap img{transform:scale(1.04);}
+.card-img-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2d3156,#1a1a2e);font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:rgba(255,255,255,.15);letter-spacing:2px;}
+.card-badges{position:absolute;top:8px;left:8px;display:flex;gap:5px;flex-wrap:wrap;}
+.badge{font-family:'Barlow Condensed',sans-serif;font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:3px;letter-spacing:.8px;text-transform:uppercase;}
+.badge.cat{background:var(--red);color:#fff;}
+.badge.brk{background:#ff6b00;color:#fff;}
+.badge.trnd{background:var(--navy);color:#fff;}
+.badge.feat{background:var(--gold);color:#fff;}
+.card-body{padding:12px 14px 14px;}
+.card-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;line-height:1.35;color:var(--navy);margin-bottom:7px;}
+.card-summary{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:10px;}
+.card-meta{display:flex;justify-content:space-between;font-size:11px;color:#aaa;}
+
+/* ── SIDEBAR ── */
+#sidebar{}
+.side-box{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:18px;}
+.side-box h3{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--navy);margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #f0ede6;display:flex;align-items:center;gap:6px;}
+.trend-item{display:flex;gap:10px;margin-bottom:13px;cursor:pointer;padding-bottom:13px;border-bottom:1px solid #f0ede6;}
+.trend-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.trend-num{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#e8e4dc;min-width:30px;line-height:1;}
+.trend-content{}
+.trend-cat{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;}
+.trend-title{font-size:12.5px;font-weight:600;line-height:1.4;color:var(--navy);margin:3px 0;}
+.trend-date{font-size:11px;color:#aaa;}
+.trend-item:hover .trend-title{color:var(--red);}
+
+.cat-tags{display:flex;flex-wrap:wrap;gap:7px;}
+.cat-tag{padding:5px 11px;border:1px solid var(--border);border-radius:20px;background:var(--light);font-size:12px;cursor:pointer;transition:all .2s;}
+.cat-tag:hover{background:var(--red);color:#fff;border-color:var(--red);}
+
+.newsletter-box{background:var(--navy);border-radius:8px;padding:18px;color:#fff;margin-bottom:18px;}
+.newsletter-box h3{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;margin-bottom:6px;}
+.newsletter-box p{font-size:12px;color:#9ab;margin-bottom:12px;line-height:1.5;}
+.newsletter-box input{width:100%;padding:9px 12px;border:none;border-radius:5px;font-size:13px;margin-bottom:8px;background:#2d3156;color:#fff;}
+.newsletter-box input::placeholder{color:#667;}
+.newsletter-box button{width:100%;padding:9px;background:var(--red);color:#fff;border:none;border-radius:5px;font-weight:700;font-size:13px;}
+
+/* ── ARTICLE MODAL ── */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;overflow-y:auto;padding:20px;}
+#modal-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
+#modal{background:#fff;border-radius:10px;max-width:760px;width:100%;margin-top:20px;overflow:hidden;}
+#modal-img{width:100%;height:320px;object-fit:cover;display:block;}
+#modal-close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#modal-img-wrap{position:relative;}
+#modal-body{padding:24px 28px 32px;}
+#modal-cat{background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.8px;display:inline-block;margin-bottom:12px;}
+#modal-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;line-height:1.3;color:var(--navy);margin-bottom:12px;}
+#modal-meta{font-size:13px;color:#999;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #eee;display:flex;gap:16px;flex-wrap:wrap;}
+#modal-summary{font-family:'Source Serif 4',serif;font-size:16px;line-height:1.8;color:#333;margin-bottom:14px;}
+#modal-content{font-size:15px;line-height:1.8;color:#444;}
+#modal-content p{margin-bottom:14px;}
+
+/* ── FOOTER ── */
+#site-footer{background:var(--navy);color:#7a8;margin-top:40px;}
+#footer-inner{max-width:1200px;margin:0 auto;padding:40px 20px 20px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px;margin-bottom:28px;}
+@media(max-width:720px){.footer-grid{grid-template-columns:1fr 1fr;}}
+.footer-brand{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:8px;}
+.footer-brand span{color:var(--accent);}
+.footer-desc{font-size:12.5px;line-height:1.6;margin-bottom:14px;}
+.footer-socials{display:flex;gap:8px;flex-wrap:wrap;}
+.soc-btn{background:#2d3156;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer;color:#9ab;transition:background .2s;}
+.soc-btn:hover{background:var(--red);color:#fff;}
+.footer-col h4{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid #2d3156;}
+.footer-link{font-size:12.5px;margin-bottom:6px;cursor:pointer;transition:color .2s;}
+.footer-link:hover{color:var(--accent);}
+.footer-bottom{border-top:1px solid #2d3156;padding-top:14px;display:flex;justify-content:space-between;font-size:11.5px;flex-wrap:wrap;gap:8px;}
+
+/* ── CATEGORY / SEARCH VIEW ── */
+#cat-view{display:none;padding:24px 0;}
+#cat-view.active{display:block;}
+#cat-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px;}
+#cat-count{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+/* ── ADMIN PANEL ── */
+#admin-panel{display:none;min-height:100vh;background:#f0f2f5;font-family:'Barlow',sans-serif;}
+#admin-panel.active{display:block;}
+#admin-topbar{background:var(--navy);color:#fff;padding:0 22px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:100;}
+#admin-topbar .brand{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--accent);}
+#admin-topbar .brand span{color:#fff;}
+#admin-user-info{display:flex;align-items:center;gap:10px;}
+.role-badge{border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;}
+#btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:5px;padding:5px 14px;font-size:12px;cursor:pointer;}
+#admin-layout{display:flex;}
+#admin-sidebar{width:210px;background:#1e2340;min-height:calc(100vh - 54px);position:sticky;top:54px;flex-shrink:0;display:flex;flex-direction:column;}
+.adm-tab{display:block;width:100%;text-align:left;padding:12px 20px;border:none;background:transparent;color:#8899bb;font-family:'Barlow',sans-serif;font-size:13.5px;cursor:pointer;border-left:3px solid transparent;transition:all .2s;}
+.adm-tab:hover{color:#dde;background:rgba(255,255,255,.04);}
+.adm-tab.active{color:var(--accent);background:rgba(192,57,43,.2);border-left-color:var(--accent);}
+#admin-stats{padding:16px 18px;border-top:1px solid #2a2f55;margin-top:auto;}
+.stat-row{display:flex;justify-content:space-between;font-size:12px;color:#667;margin-bottom:5px;}
+.stat-row span:last-child{color:#fff;font-weight:700;}
+#admin-main{flex:1;padding:22px;}
+
+/* ADMIN TABLES */
+.admin-card{background:#fff;border-radius:10px;border:1px solid #dde;overflow:hidden;margin-bottom:22px;}
+.admin-card-head{padding:16px 18px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.admin-card-head h2{font-size:17px;font-weight:700;color:var(--navy);}
+.search-input{padding:8px 14px;border:1px solid #dde;border-radius:20px;font-size:13px;width:220px;outline:none;}
+.btn-primary{padding:8px 18px;background:var(--red);color:#fff;border:none;border-radius:5px;font-weight:700;font-size:13px;cursor:pointer;}
+.btn-primary:hover{background:var(--accent);}
+.btn-secondary{padding:5px 12px;border:1px solid #ccc;background:#f5f5f5;border-radius:4px;font-size:12px;cursor:pointer;}
+.btn-publish{padding:4px 10px;border:1px solid #27ae60;color:#27ae60;background:none;border-radius:4px;font-size:11px;cursor:pointer;}
+.btn-edit{padding:4px 10px;border:1px solid #2980b9;color:#2980b9;background:none;border-radius:4px;font-size:11px;cursor:pointer;}
+.btn-delete{padding:4px 10px;border:1px solid var(--red);color:var(--red);background:none;border-radius:4px;font-size:11px;cursor:pointer;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:#f8f8f8;border-bottom:1px solid #eee;}
+th{padding:11px 14px;text-align:left;font-weight:600;color:#555;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid #f4f4f4;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even){background:#fcfcfc;}
+.status-pub{background:#e8f5e9;color:#2e7d32;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;}
+.status-draft{background:#fff8e1;color:#f57f17;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;}
+.flag-brk{background:#fdecea;color:var(--red);padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px;}
+.flag-trnd{background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:3px;font-size:10px;}
+.flag-feat{background:#f3e5f5;color:#7b1fa2;padding:2px 6px;border-radius:3px;font-size:10px;}
+.td-title{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--navy);}
+.btn-actions{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* FORM */
+#article-form{display:none;}
+#article-form.active{display:block;}
+.form-card{background:#fff;border-radius:10px;border:1px solid #dde;padding:24px;margin-bottom:22px;}
+.form-card h2{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-full{grid-column:1/-1;}
+label.field-label{font-size:11.5px;font-weight:700;color:#555;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:4px;}
+.field-input{width:100%;padding:10px 12px;border:1px solid #dde;border-radius:6px;font-size:14px;outline:none;background:#fafafa;transition:border .2s;}
+.field-input:focus{border-color:var(--red);background:#fff;}
+.field-checks{display:flex;gap:20px;flex-wrap:wrap;}
+.field-checks label{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px;}
+.btn-draft{padding:10px 22px;border:1px solid #ccc;background:#f5f5f5;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-save{padding:10px 22px;background:var(--red);color:#fff;border:none;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;}
+
+/* USERS TAB */
+#users-tab{display:none;}
+#users-tab.active{display:block;}
+.role-select{padding:5px 8px;border:1px solid #dde;border-radius:4px;font-size:12px;font-weight:700;}
+.perm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+.perm-card{border-radius:8px;padding:14px;}
+.perm-card h4{font-size:13px;font-weight:700;margin-bottom:8px;}
+.perm-item{font-size:12px;color:#555;margin-bottom:4px;}
+
+/* SETTINGS TAB */
+#settings-tab{display:none;max-width:580px;}
+#settings-tab.active{display:block;}
+.settings-form{background:#fff;border-radius:10px;border:1px solid #dde;padding:24px;}
+
+/* LOGIN */
+#login-view{display:none;min-height:100vh;background:var(--navy);align-items:center;justify-content:center;}
+#login-view.active{display:flex;}
+.login-box{background:#fff;border-radius:12px;padding:38px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.login-logo{text-align:center;margin-bottom:26px;}
+.login-logo .name{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;color:var(--red);}
+.login-logo .name span{color:var(--navy);}
+.login-logo small{font-size:12px;color:#aaa;}
+.login-err{color:var(--red);font-size:12px;margin-bottom:10px;padding:8px 12px;background:#fdecea;border-radius:5px;}
+.login-hint{margin-top:14px;font-size:11px;color:#bbb;text-align:center;}
+
+/* ANIMATIONS */
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:slideUp .4s ease both;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ WEBSITE VIEW ═══════════════════ -->
+<div id="website-view" class="view active">
+
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="left">
+      <span id="live-date"></span>
+      <span class="sep">|</span>
+      <span id="live-time"></span>
+    </div>
+    <div class="right">
+      <span>🌡 Weather</span>
+      <span class="sep">|</span>
+      <span>عربي</span>
+      <span class="sep">|</span>
+      <button id="btn-admin" onclick="goAdmin()">⚡ ADMIN</button>
+    </div>
+  </div>
+
+  <!-- Flash Ticker -->
+  <div id="flash-bar">
+    <span id="flash-label">📡 FLASH</span>
+    <div id="flash-track"><span id="flash-text"></span></div>
+  </div>
+
+  <!-- Header -->
+  <header id="site-header">
+    <div id="header-inner">
+      <div id="logo-wrap">
+        <div id="logo-box">
+          <img src="ChatGPT_Image_Jul_24__2025__11_55_57_PM.png" alt="GazaPress" onerror="this.style.display='none';document.getElementById('logo-text-fallback').style.display='block'"/>
+          <span id="logo-text-fallback">GAZA<span>PRESS</span></span>
+        </div>
+        <div id="logo-tagline">
+          <p>Palestine's Premier News Source</p>
+          <p>Truth From The Ground</p>
+        </div>
+      </div>
+      <div id="search-wrap">
+        <input id="search-input" type="text" placeholder="🔍  Search news..." oninput="handleSearch(this.value)"/>
+      </div>
+      <div id="header-extras">
+        <span>📱 App</span>
+        <span>📧 Newsletter</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav id="main-nav">
+    <div id="nav-inner" id="nav-inner"></div>
+  </nav>
+
+  <!-- Breaking News -->
+  <div id="breaking-bar">
+    <div id="breaking-label">🔴 BREAKING NEWS</div>
+    <div class="breaking-track">
+      <div class="breaking-inner" id="breaking-inner"></div>
+    </div>
+  </div>
+
+  <!-- Home Content -->
+  <div id="home-view">
+    <div id="main">
+      <div id="content-area">
+        <!-- Featured -->
+        <div class="sec-head"><div class="sec-bar red"></div><span class="sec-title">Featured Stories</span></div>
+        <div class="cards-grid" id="featured-grid"></div>
+        <!-- Latest -->
+        <div class="sec-head"><div class="sec-bar navy"></div><span class="sec-title">Latest News</span></div>
+        <div class="cards-grid" id="latest-grid"></div>
+      </div>
+      <aside id="sidebar">
+        <!-- Trending -->
+        <div class="side-box">
+          <h3>🔥 Trending Now</h3>
+          <div id="trending-list"></div>
+        </div>
+        <!-- Categories -->
+        <div class="side-box">
+          <h3>📂 Browse Topics</h3>
+          <div class="cat-tags" id="cat-tags"></div>
+        </div>
+        <!-- Newsletter -->
+        <div class="newsletter-box">
+          <h3>📧 Stay Informed</h3>
+          <p>Get breaking news delivered to your inbox every day.</p>
+          <input type="email" placeholder="Your email address"/>
+          <button onclick="alert('Subscribed!')">Subscribe Free</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Category / Search View -->
+  <div id="cat-view">
+    <div style="max-width:1200px;margin:0 auto;padding:24px 18px;">
+      <div id="cat-title"></div>
+      <div id="cat-count"></div>
+      <div class="cards-grid" id="cat-grid"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">GAZA<span>PRESS</span></div>
+          <p class="footer-desc">Delivering truthful, independent journalism from the ground. Our reporters work under the most challenging conditions to bring you verified, accurate news from Palestine and the world.</p>
+          <div class="footer-socials">
+            <span class="soc-btn">Twitter</span><span class="soc-btn">Facebook</span><span class="soc-btn">Telegram</span><span class="soc-btn">YouTube</span>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col">
+            <h4>Quick Links</h4>
+            <div class="footer-link">Home</div><div class="footer-link">Breaking News</div><div class="footer-link">Gaza</div><div class="footer-link">Palestine</div><div class="footer-link">Middle East</div><div class="footer-link">World</div>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col">
+            <h4>Categories</h4>
+            <div class="footer-link">Politics</div><div class="footer-link">War & Conflict</div><div class="footer-link">Health</div><div class="footer-link">Economy</div><div class="footer-link">Sports</div><div class="footer-link">Technology</div>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <div class="footer-link">About Us</div><div class="footer-link">Our Team</div><div class="footer-link">Contact</div><div class="footer-link">Advertise</div><div class="footer-link">Privacy Policy</div><div class="footer-link">Terms</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 GazaPress. All rights reserved.</span>
+        <span>Built for truth. Built for Palestine.</span>
+      </div>
+    </div>
+  </footer>
+</div><!-- end website-view -->
+
+<!-- ═══════════════════ ARTICLE MODAL ═══════════════════ -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div id="modal-img-wrap">
+      <img id="modal-img" src="" alt=""/>
+      <button id="modal-close" onclick="closeModalBtn()">×</button>
+    </div>
+    <div id="modal-body">
+      <span id="modal-cat"></span>
+      <h1 id="modal-title"></h1>
+      <div id="modal-meta"></div>
+      <p id="modal-summary"></p>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ LOGIN VIEW ═══════════════════ -->
+<div id="login-view" class="view">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="name">GAZA<span>PRESS</span></div>
+      <small>Admin Panel – Secure Login</small>
+    </div>
+    <div id="login-err" class="login-err" style="display:none"></div>
+    <div style="margin-bottom:13px">
+      <label class="field-label">Email</label>
+      <input id="login-email" class="field-input" type="email" value="ahmad@gazapress.com"/>
+    </div>
+    <div style="margin-bottom:18px">
+      <label class="field-label">Password</label>
+      <input id="login-pass" class="field-input" type="password" value="admin123" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-primary" style="width:100%;padding:12px;font-size:15px;" onclick="doLogin()">Sign In</button>
+    <p class="login-hint">Demo: ahmad@gazapress.com / admin123</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADMIN PANEL ═══════════════════ -->
+<div id="admin-panel" class="view">
+  <div id="admin-topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="brand">GAZA<span>PRESS</span></span>
+      <span style="color:#556;font-size:13px;">Admin Panel</span>
+    </div>
+    <div id="admin-user-info">
+      <span id="admin-role-badge" class="role-badge"></span>
+      <span id="admin-user-name" style="font-size:13px;color:#ccc;"></span>
+      <button id="btn-logout" onclick="doLogout()">Logout → Website</button>
+    </div>
+  </div>
+  <div id="admin-layout">
+    <nav id="admin-sidebar">
+      <button class="adm-tab active" onclick="showAdminTab('articles',this)">📰 Articles</button>
+      <button class="adm-tab" onclick="showAdminTab('new-article',this)">✏️ Write Article</button>
+      <button class="adm-tab" id="tab-users-btn" onclick="showAdminTab('users',this)">👥 Users</button>
+      <button class="adm-tab" onclick="showAdminTab('settings',this)">⚙️ Settings</button>
+      <div id="admin-stats">
+        <div class="stat-row"><span>Total</span><span id="stat-total">0</span></div>
+        <div class="stat-row"><span>Published</span><span id="stat-pub">0</span></div>
+        <div class="stat-row"><span>Drafts</span><span id="stat-draft">0</span></div>
+        <div class="stat-row"><span>Breaking</span><span id="stat-brk">0</span></div>
+      </div>
+    </nav>
+    <div id="admin-main">
+      <!-- Articles Tab -->
+      <div id="articles-tab">
+        <div class="admin-card">
+          <div class="admin-card-head">
+            <h2>All Articles</h2>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input class="search-input" type="text" placeholder="Search articles…" oninput="filterAdminArticles(this.value)"/>
+              <button class="btn-primary" onclick="showAdminTab('new-article',null);clearForm()">+ New Article</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Status</th><th>Flags</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="articles-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Article Form -->
+      <div id="article-form">
+        <div class="form-card">
+          <h2><span id="form-title-h">New Article</span> <button class="btn-secondary" onclick="showAdminTab('articles',null)">← Back</button></h2>
+          <input type="hidden" id="form-id" value=""/>
+          <div class="form-grid">
+            <div class="form-full">
+              <label class="field-label">Headline *</label>
+              <input id="f-title" class="field-input" placeholder="Article headline…"/>
+            </div>
+            <div>
+              <label class="field-label">Category</label>
+              <select id="f-cat" class="field-input"></select>
+            </div>
+            <div>
+              <label class="field-label">Author</label>
+              <input id="f-author" class="field-input"/>
+            </div>
+            <div class="form-full">
+              <label class="field-label">Image URL</label>
+              <input id="f-image" class="field-input" placeholder="https://images.unsplash.com/…"/>
+            </div>
+            <div class="form-full">
+              <label class="field-label">Summary *</label>
+              <textarea id="f-summary" class="field-input" rows="3" placeholder="Brief summary…"></textarea>
+            </div>
+            <div class="form-full">
+              <label class="field-label">Full Content</label>
+              <textarea id="f-content" class="field-input" rows="7" placeholder="Full article body…"></textarea>
+            </div>
+            <div class="form-full">
+              <div class="field-checks">
+                <label><input type="checkbox" id="f-breaking"/> 🔴 Breaking News</label>
+                <label><input type="checkbox" id="f-trending"/> 🔥 Trending</label>
+                <label><input type="checkbox" id="f-featured"/> ⭐ Featured</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:18px;">
+            <button class="btn-draft" onclick="saveArticle('draft')">Save Draft</button>
+            <button class="btn-save" id="btn-publish-form" onclick="saveArticle('published')">Publish</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="users-tab">
+        <div class="admin-card">
+          <div class="admin-card-head"><h2>User Management</h2></div>
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+        <div class="admin-card" style="padding:20px 20px 24px;">
+          <h3 style="font-size:15px;margin-bottom:14px;color:var(--navy);">Role Permissions</h3>
+          <div class="perm-grid" id="perm-grid"></div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settings-tab">
+        <div class="settings-form">
+          <h2 style="font-size:18px;font-weight:700;color:var(--navy);margin-bottom:20px;">Site Settings</h2>
+          <div id="settings-fields"></div>
+          <button class="btn-save" onclick="alert('Settings saved!')">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════
+const CATEGORIES = ["All","Politics","War & Conflict","Health","Economy","Sports","Technology","World","Opinion","Investigations"];
+
+const FLASH_ITEMS = [
+  "🔴 BREAKING: Emergency UN session called on humanitarian corridor violations",
+  "📰 Aid convoy reaches northern regions after 7-day blockade",
+  "⚡ Ceasefire talks resume in Cairo with new framework proposed",
+  "🌍 World leaders call for immediate cessation of hostilities",
+  "📊 Economic aid package of $2.3B approved by donor nations",
+  "📡 Live updates: Ground situation in northern corridor worsens",
+];
+
+const ROLES = {
+  admin:      { label:"Admin",      color:"#c0392b", perms:["publish","draft","delete","manage_users","manage_settings"] },
+  editor:     { label:"Editor",     color:"#2980b9", perms:["publish","draft"] },
+  journalist: { label:"Journalist", color:"#27ae60", perms:["draft"] },
+};
+
+let USERS = [
+  { id:1, name:"Ahmad Al-Masri",  email:"ahmad@gazapress.com", role:"admin",      active:true  },
+  { id:2, name:"Sara Khalil",     email:"sara@gazapress.com",  role:"editor",     active:true  },
+  { id:3, name:"Omar Hassan",     email:"omar@gazapress.com",  role:"journalist", active:true  },
+  { id:4, name:"Lena Barakat",    email:"lena@gazapress.com",  role:"journalist", active:false },
+];
+
+let ARTICLES = [
+  { id:1, title:"Ceasefire Negotiations Enter Critical Phase Amid Rising Tensions", category:"Politics", author:"Ahmad Al-Masri", date:"2026-05-18", image:"https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80", summary:"Senior diplomats from multiple nations gathered in Cairo for what officials describe as a final push toward a lasting ceasefire agreement.", content:"Full coverage of the ongoing diplomatic efforts continues as delegations work through the night on key sticking points regarding the exchange of hostages and the withdrawal of forces from urban areas.\n\nSources close to the negotiations say a draft framework has been circulated but significant gaps remain. The talks are the most substantive in months and observers are cautiously optimistic.", breaking:true, trending:true, featured:true, status:"published" },
+  { id:2, title:"Humanitarian Aid Convoys Reach Northern Regions After Week-Long Blockade", category:"War & Conflict", author:"Sara Khalil", date:"2026-05-18", image:"https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80", summary:"Relief organizations confirmed that 47 trucks carrying food, medicine and supplies successfully crossed into the northern corridors.", content:"After seven days of complete blockade, the first humanitarian convoy managed to pass through the checkpoint at dawn. The trucks carried flour, canned goods, infant formula, surgical supplies and generators.\n\nMedical teams on the ground say the supplies will last approximately three days given current population needs. Aid agencies are calling for an immediate and sustained reopening of all crossing points.", breaking:true, trending:false, featured:true, status:"published" },
+  { id:3, title:"Global Leaders Condemn Attacks on Civilian Infrastructure", category:"World", author:"Omar Hassan", date:"2026-05-17", image:"https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80", summary:"The UN Security Council convened an emergency session following reports of strikes on hospitals and water treatment facilities.", content:"The Security Council met for the third time this week as new satellite imagery emerged showing damage to at least four hospitals and two desalination plants in the southern districts.\n\nSeveral member states called for an independent investigation while others blocked a resolution demanding an immediate halt to hostilities. The session ended without a binding agreement.", breaking:false, trending:true, featured:false, status:"published" },
+  { id:4, title:"Economic Crisis Deepens as Currency Loses 40% of Its Value", category:"Economy", author:"Lena Barakat", date:"2026-05-17", image:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80", summary:"Economists warn of a complete economic collapse within months if emergency international funding is not secured immediately.", content:"The local currency has shed more than 40% of its value against the dollar in the past three months, pushing basic food prices beyond the reach of most families. Unemployment has risen to an estimated 65% in the urban areas.\n\nThe IMF has released a preliminary assessment calling the situation 'critical' and warning that without an injection of $800 million in emergency funding, a full sovereign default is likely within 90 days.", breaking:false, trending:true, featured:false, status:"published" },
+  { id:5, title:"Field Hospitals Overwhelmed as Medical Supplies Run Dangerously Low", category:"Health", author:"Dr. Nour Salam", date:"2026-05-16", image:"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80", summary:"Doctors Without Borders reports that surgical teams are being forced to make impossible decisions due to critical shortages.", content:"Surgeons at the main field hospital in the eastern district performed 34 operations yesterday with only local anesthesia due to a complete depletion of general anesthetics. Blood supplies are at 5% capacity.\n\nMSF is calling the situation a catastrophic medical emergency and demanding that resupply missions be granted immediate passage. The WHO estimates that over 200 patients require dialysis daily but only 12 machines are functioning.", breaking:false, trending:false, featured:true, status:"published" },
+  { id:6, title:"Local Journalists Awarded International Press Freedom Prize", category:"Investigations", author:"Fatima Nasser", date:"2026-05-16", image:"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80", summary:"Three reporters recognized for their courageous frontline coverage under extreme danger and intimidation.", content:"The Committee to Protect Journalists announced today that three local correspondents would receive this year's Press Freedom Award for their continued reporting despite losing colleagues, equipment and facing direct threats.\n\nThe award ceremony will be held virtually due to safety concerns. All three journalists stated they would continue reporting regardless of the risks because 'the world needs to see what is happening here.'", breaking:false, trending:false, featured:false, status:"published" },
+  { id:7, title:"Tech Companies Face Pressure Over Algorithmic Censorship Claims", category:"Technology", author:"Karim Yousef", date:"2026-05-15", image:"https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80", summary:"Social media platforms under scrutiny as activists allege systematic suppression of conflict-related content.", content:"A coalition of digital rights organizations has published a 200-page report documenting alleged suppression of conflict-related posts across major platforms. The report includes screenshots, engagement data and testimony from over 500 content creators.\n\nThe platforms have denied systematic censorship but acknowledged 'over-enforcement errors' in automated moderation. Congressional hearings are expected next month.", breaking:false, trending:true, featured:false, status:"published" },
+  { id:8, title:"Youth Athletes Find Hope Through International Sports Programs", category:"Sports", author:"Youssef Amin", date:"2026-05-15", image:"https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&q=80", summary:"International football federation launches emergency scholarship program for young athletes displaced by conflict.", content:"Forty young footballers aged 12 to 17 have been selected for a six-month training and education program in partnership with clubs in Germany and Portugal. The program covers accommodation, schooling and professional coaching.\n\nThe federation says applications exceeded 2,000 entries within the first 48 hours of the announcement, reflecting the enormous hunger among young people for a path forward.", breaking:false, trending:false, featured:false, status:"published" },
+];
+
+let currentUser = null;
+let editingId = null;
+let adminSearchQuery = "";
+
+// ════════════════════════════════════════════
+//  CLOCK & FLASH
+// ════════════════════════════════════════════
+function updateClock(){
+  const now = new Date();
+  document.getElementById('live-date').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('live-time').textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock,1000); updateClock();
+
+let flashIdx=0;
+function rotateFlash(){
+  const el=document.getElementById('flash-text');
+  el.style.opacity=0; el.style.transform='translateY(6px)';
+  setTimeout(()=>{
+    el.textContent=FLASH_ITEMS[flashIdx%FLASH_ITEMS.length];
+    el.style.transition='opacity .4s,transform .4s';
+    el.style.opacity=1; el.style.transform='translateY(0)';
+    flashIdx++;
+  },400);
+}
+rotateFlash(); setInterval(rotateFlash,4500);
+
+// ════════════════════════════════════════════
+//  VIEW SWITCHING
+// ════════════════════════════════════════════
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goAdmin(){showView('login-view');}
+function doLogout(){currentUser=null;showView('website-view');renderWebsite();}
+
+// ════════════════════════════════════════════
+//  NAV BUILD
+// ════════════════════════════════════════════
+function buildNav(){
+  const nav=document.getElementById('nav-inner');
+  nav.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='nav-btn'+(cat==='All'?' active':'');
+    b.textContent=cat;
+    b.onclick=()=>{ document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); filterByCategory(cat); };
+    nav.appendChild(b);
+  });
+}
+
+// ════════════════════════════════════════════
+//  RENDER WEBSITE
+// ════════════════════════════════════════════
+function renderWebsite(){
+  buildNav();
+  const pub=ARTICLES.filter(a=>a.status==='published');
+
+  // Breaking ticker
+  const brk=pub.filter(a=>a.breaking);
+  const bi=document.getElementById('breaking-inner');
+  bi.innerHTML='';
+  if(brk.length){
+    const arr=[...brk,...brk];
+    arr.forEach(a=>{const s=document.createElement('span');s.textContent=a.title;bi.appendChild(s);});
+    document.getElementById('breaking-bar').style.display='flex';
+  } else {
+    document.getElementById('breaking-bar').style.display='none';
+  }
+
+  // Featured
+  const feat=pub.filter(a=>a.featured).slice(0,3);
+  document.getElementById('featured-grid').innerHTML=feat.map(a=>cardHTML(a)).join('');
+
+  // Latest
+  const latest=[...pub].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,6);
+  document.getElementById('latest-grid').innerHTML=latest.map(a=>cardHTML(a)).join('');
+
+  // Trending sidebar
+  const trend=pub.filter(a=>a.trending).slice(0,5);
+  document.getElementById('trending-list').innerHTML=trend.map((a,i)=>`
+    <div class="trend-item" onclick="openModal(${a.id})">
+      <span class="trend-num">0${i+1}</span>
+      <div class="trend-content">
+        <div class="trend-cat">${a.category}</div>
+        <div class="trend-title">${a.title}</div>
+        <div class="trend-date">${fmtDate(a.date)}</div>
+      </div>
+    </div>`).join('');
+
+  // Cat tags sidebar
+  document.getElementById('cat-tags').innerHTML=CATEGORIES.filter(c=>c!=='All').map(c=>`<span class="cat-tag" onclick="filterByCategory('${c}')">${c}</span>`).join('');
+
+  showHomeView();
+}
+
+function showHomeView(){
+  document.getElementById('home-view').style.display='block';
+  document.getElementById('cat-view').classList.remove('active');
+}
+
+function filterByCategory(cat){
+  document.getElementById('search-input').value='';
+  if(cat==='All'){showHomeView();return;}
+  const pub=ARTICLES.filter(a=>a.status==='published');
+  const filtered=cat==='All'?pub:pub.filter(a=>a.category===cat);
+  document.getElementById('cat-title').innerHTML=`<div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--navy);margin-bottom:4px;">${cat}</div>`;
+  document.getElementById('cat-count').innerHTML=`<div style="font-size:13px;color:var(--muted);margin-bottom:18px;">${filtered.length} article${filtered.length!==1?'s':''} found</div>`;
+  document.getElementById('cat-grid').innerHTML=filtered.length?filtered.map(a=>cardHTML(a)).join(''):'<p style="color:var(--muted);font-size:14px;">No articles in this category.</p>';
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('cat-view').classList.add('active');
+  window.scrollTo(0,200);
+}
+
+function handleSearch(val){
+  if(!val.trim()){showHomeView();return;}
+  const pub=ARTICLES.filter(a=>a.status==='published');
+  const q=val.toLowerCase();
+  const filtered=pub.filter(a=>a.title.toLowerCase().includes(q)||a.summary.toLowerCase().includes(q)||a.category.toLowerCase().includes(q));
+  document.getElementById('cat-title').innerHTML=`<div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--navy);margin-bottom:4px;">Search: "${val}"</div>`;
+  document.getElementById('cat-count').innerHTML=`<div style="font-size:13px;color:var(--muted);margin-bottom:18px;">${filtered.length} result${filtered.length!==1?'s':''}</div>`;
+  document.getElementById('cat-grid').innerHTML=filtered.length?filtered.map(a=>cardHTML(a)).join(''):'<p style="color:var(--muted);font-size:14px;padding:20px 0;">No articles found matching your search.</p>';
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('cat-view').classList.add('active');
+}
+
+// ════════════════════════════════════════════
+//  CARD HTML
+// ════════════════════════════════════════════
+function cardHTML(a){
+  const badges=[
+    `<span class="badge cat">${a.category}</span>`,
+    a.breaking?`<span class="badge brk">Breaking</span>`:'',
+    a.trending?`<span class="badge trnd">🔥 Trending</span>`:'',
+  ].join('');
+  return `<div class="card" onclick="openModal(${a.id})">
+    <div class="card-img-wrap">
+      <img src="${a.image}" alt="${esc(a.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="card-img-placeholder" style="display:none">GAZAPRESS</div>
+      <div class="card-badges">${badges}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${a.title}</div>
+      <div class="card-summary">${a.summary}</div>
+      <div class="card-meta"><span>✍ ${a.author}</span><span>${fmtDate(a.date)}</span></div>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════
+function openModal(id){
+  const a=ARTICLES.find(x=>x.id===id); if(!a)return;
+  document.getElementById('modal-img').src=a.image;
+  document.getElementById('modal-img').onerror=function(){this.style.display='none';};
+  document.getElementById('modal-cat').textContent=a.category;
+  document.getElementById('modal-title').textContent=a.title;
+  document.getElementById('modal-meta').innerHTML=`<span>✍ ${a.author}</span><span>📅 ${fmtDateLong(a.date)}</span>`;
+  document.getElementById('modal-summary').textContent=a.summary;
+  const body=a.content||'';
+  document.getElementById('modal-content').innerHTML=body.split('\n\n').filter(Boolean).map(p=>`<p>${p}</p>`).join('');
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(e){if(e.target===document.getElementById('modal-overlay'))closeModalBtn();}
+function closeModalBtn(){document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';}
+
+// ════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const u=USERS.find(x=>x.email===email&&x.active);
+  const errEl=document.getElementById('login-err');
+  if(!u||pass!=='admin123'){errEl.style.display='block';errEl.textContent='Invalid credentials or account inactive. Try ahmad@gazapress.com / admin123';return;}
+  errEl.style.display='none';
+  currentUser=u;
+  showView('admin-panel');
+  renderAdmin();
+}
+
+// ════════════════════════════════════════════
+//  ADMIN RENDER
+// ════════════════════════════════════════════
+function renderAdmin(){
+  if(!currentUser)return;
+  const r=ROLES[currentUser.role];
+  const rb=document.getElementById('admin-role-badge');
+  rb.textContent=r.label; rb.style.background=r.color;
+  document.getElementById('admin-user-name').textContent=currentUser.name;
+
+  // hide users tab if no perm
+  document.getElementById('tab-users-btn').style.display=r.perms.includes('manage_users')?'block':'none';
+
+  // hide publish btn
+  document.getElementById('btn-publish-form').style.display=r.perms.includes('publish')?'':'none';
+
+  updateStats();
+  renderArticlesTable();
+  renderUsersTable();
+  renderSettings();
+  renderPermGrid();
+  populateCatSelect();
+  showAdminTab('articles',document.querySelector('.adm-tab'));
+}
+
+function updateStats(){
+  document.getElementById('stat-total').textContent=ARTICLES.length;
+  document.getElementById('stat-pub').textContent=ARTICLES.filter(a=>a.status==='published').length;
+  document.getElementById('stat-draft').textContent=ARTICLES.filter(a=>a.status==='draft').length;
+  document.getElementById('stat-brk').textContent=ARTICLES.filter(a=>a.breaking).length;
+}
+
+function showAdminTab(name,btn){
+  // hide all
+  ['articles-tab','article-form','users-tab','settings-tab'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.style.display='none'; el.classList.remove('active');}
+  });
+  document.querySelectorAll('.adm-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+
+  if(name==='articles'){
+    document.getElementById('articles-tab').style.display='block';
+  } else if(name==='new-article'){
+    document.getElementById('article-form').style.display='block';
+    document.getElementById('article-form').classList.add('active');
+  } else if(name==='users'){
+    document.getElementById('users-tab').style.display='block';
+    document.getElementById('users-tab').classList.add('active');
+  } else if(name==='settings'){
+    document.getElementById('settings-tab').style.display='block';
+    document.getElementById('settings-tab').classList.add('active');
+  }
+}
+
+function renderArticlesTable(filter=''){
+  const q=filter.toLowerCase();
+  const rows=ARTICLES.filter(a=>!q||a.title.toLowerCase().includes(q)||a.category.toLowerCase().includes(q));
+  const canDel=currentUser&&ROLES[currentUser.role].perms.includes('delete');
+  const canPub=currentUser&&ROLES[currentUser.role].perms.includes('publish');
+  document.getElementById('articles-tbody').innerHTML=rows.map(a=>`
+    <tr>
+      <td class="td-title" title="${esc(a.title)}">${a.title}</td>
+      <td><span style="background:#f0f0f0;padding:2px 8px;border-radius:4px;font-size:11px;">${a.category}</span></td>
+      <td style="color:var(--muted);font-size:12.5px;">${a.author}</td>
+      <td><span class="${a.status==='published'?'status-pub':'status-draft'}">${a.status}</span></td>
+      <td>
+        ${a.breaking?'<span class="flag-brk">BRK</span>':''}
+        ${a.trending?'<span class="flag-trnd">TRD</span>':''}
+        ${a.featured?'<span class="flag-feat">FTR</span>':''}
+      </td>
+      <td style="color:#aaa;font-size:12px;white-space:nowrap;">${a.date}</td>
+      <td>
+        <div class="btn-actions">
+          <button class="btn-edit" onclick="editArticle(${a.id})">Edit</button>
+          ${canPub?`<button class="btn-publish" onclick="toggleStatus(${a.id})">${a.status==='published'?'Unpublish':'Publish'}</button>`:''}
+          ${canDel?`<button class="btn-delete" onclick="deleteArticle(${a.id})">Delete</button>`:''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterAdminArticles(val){renderArticlesTable(val);}
+
+function editArticle(id){
+  const a=ARTICLES.find(x=>x.id===id); if(!a)return;
+  document.getElementById('form-title-h').textContent='Edit Article';
+  document.getElementById('form-id').value=a.id;
+  document.getElementById('f-title').value=a.title;
+  document.getElementById('f-cat').value=a.category;
+  document.getElementById('f-author').value=a.author;
+  document.getElementById('f-image').value=a.image||'';
+  document.getElementById('f-summary').value=a.summary;
+  document.getElementById('f-content').value=a.content||'';
+  document.getElementById('f-breaking').checked=!!a.breaking;
+  document.getElementById('f-trending').checked=!!a.trending;
+  document.getElementById('f-featured').checked=!!a.featured;
+  editingId=a.id;
+  showAdminTab('new-article',null);
+}
+
+function clearForm(){
+  document.getElementById('form-title-h').textContent='New Article';
+  document.getElementById('form-id').value='';
+  ['f-title','f-image','f-summary','f-content'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-author').value=currentUser?currentUser.name:'';
+  document.getElementById('f-cat').value='Politics';
+  ['f-breaking','f-trending','f-featured'].forEach(id=>document.getElementById(id).checked=false);
+  editingId=null;
+}
+
+function saveArticle(status){
+  const title=document.getElementById('f-title').value.trim();
+  const summary=document.getElementById('f-summary').value.trim();
+  if(!title||!summary){alert('Headline and summary are required.');return;}
+  const updated={
+    title, summary,
+    category:document.getElementById('f-cat').value,
+    author:document.getElementById('f-author').value||currentUser.name,
+    image:document.getElementById('f-image').value.trim(),
+    content:document.getElementById('f-content').value.trim(),
+    breaking:document.getElementById('f-breaking').checked,
+    trending:document.getElementById('f-trending').checked,
+    featured:document.getElementById('f-featured').checked,
+    status,
+  };
+  const formId=document.getElementById('form-id').value;
+  if(formId){
+    ARTICLES=ARTICLES.map(a=>a.id===parseInt(formId)?{...a,...updated}:a);
+  } else {
+    ARTICLES.unshift({...updated,id:Date.now(),date:new Date().toISOString().split('T')[0]});
+  }
+  editingId=null;
+  updateStats();
+  renderArticlesTable();
+  renderWebsite();
+  showAdminTab('articles',document.querySelector('.adm-tab'));
+  clearForm();
+}
+
+function toggleStatus(id){
+  ARTICLES=ARTICLES.map(a=>a.id===id?{...a,status:a.status==='published'?'draft':'published'}:a);
+  updateStats(); renderArticlesTable(); renderWebsite();
+}
+
+function deleteArticle(id){
+  if(!confirm('Delete this article permanently?'))return;
+  ARTICLES=ARTICLES.filter(a=>a.id!==id);
+  updateStats(); renderArticlesTable(); renderWebsite();
+}
+
+function renderUsersTable(){
+  document.getElementById('users-tbody').innerHTML=USERS.map(u=>`
+    <tr>
+      <td style="font-weight:600;">${u.name}</td>
+      <td style="color:var(--muted);font-size:12.5px;">${u.email}</td>
+      <td>
+        <select class="role-select" style="color:${ROLES[u.role].color};border-color:${ROLES[u.role].color}33;background:${ROLES[u.role].color}11;" onchange="changeRole(${u.id},this.value)">
+          ${Object.entries(ROLES).map(([k,v])=>`<option value="${k}"${u.role===k?' selected':''}>${v.label}</option>`).join('')}
+        </select>
+      </td>
+      <td><span class="${u.active?'status-pub':'status-draft'}">${u.active?'Active':'Inactive'}</span></td>
+      <td><button class="${u.active?'btn-delete':'btn-publish'}" onclick="toggleUser(${u.id})">${u.active?'Deactivate':'Activate'}</button></td>
+    </tr>`).join('');
+}
+
+function changeRole(id,role){USERS=USERS.map(u=>u.id===id?{...u,role}:u);renderUsersTable();}
+function toggleUser(id){USERS=USERS.map(u=>u.id===id?{...u,active:!u.active}:u);renderUsersTable();}
+
+function renderPermGrid(){
+  document.getElementById('perm-grid').innerHTML=Object.entries(ROLES).map(([k,v])=>`
+    <div class="perm-card" style="border:2px solid ${v.color}33;background:${v.color}08;">
+      <h4 style="color:${v.color};">${v.label}</h4>
+      ${v.perms.map(p=>`<div class="perm-item">✓ ${p.replace(/_/g,' ')}</div>`).join('')}
+    </div>`).join('');
+}
+
+function renderSettings(){
+  const fields=[['Site Name','GazaPress'],['Tagline','Truth From The Ground'],['Contact Email','contact@gazapress.com'],['Articles Per Page','12'],['Twitter Handle','@GazaPress'],['Facebook Page','facebook.com/GazaPress']];
+  document.getElementById('settings-fields').innerHTML=fields.map(([label,val])=>`
+    <div style="margin-bottom:16px;">
+      <label class="field-label">${label}</label>
+      <input class="field-input" value="${val}"/>
+    </div>`).join('');
+}
+
+function populateCatSelect(){
+  const sel=document.getElementById('f-cat');
+  sel.innerHTML=CATEGORIES.filter(c=>c!=='All').map(c=>`<option>${c}</option>`).join('');
+}
+
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function fmtDateLong(d){return new Date(d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+renderWebsite();
+</script>
+</body>
+</html>
